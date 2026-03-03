@@ -1,0 +1,152 @@
+9002;1772216502.7798378;state_change;background_hits=1
+9004;1772216502.78219;state_change;background_hits=1
+9003;1772216502.7822049;state_change;background_hits=1
+9001;1772216502.7822158;state_change;background_hits=1
+9000;1772216502.7822158;state_change;background_hits=1
+9002;1772216505.3020318;pull_request_received;0
+9004;1772216505.302359;pull_request_received;0
+9001;1772216505.302378;pull_request_received;0
+9004;1772216505.302826;pull_request_received;0
+9001;1772216505.303311;pull_request_received;0
+9003;1772216507.787446;state_change;background_hits=2
+9002;1772216507.787497;state_change;background_hits=2
+9001;1772216507.787848;state_change;background_hits=2
+9004;1772216507.787853;state_change;background_hits=2
+9000;1772216507.788202;state_change;background_hits=2
+9001;1772216512.791894;state_change;background_hits=3
+9004;1772216512.792518;state_change;background_hits=3
+9003;1772216512.792902;state_change;background_hits=3
+9002;1772216512.792916;state_change;background_hits=3
+9000;1772216512.792917;state_change;background_hits=3
+9002;1772216512.816298;pull_request_received;0
+9004;1772216512.816409;pull_request_received;0
+9000;1772216512.8172941;pull_request_received;0
+9003;1772216512.817468;pull_request_received;0
+9003;1772216512.819369;pull_request_received;0
+9004;1772216517.8012102;state_change;background_hits=4
+9000;1772216517.801258;state_change;background_hits=4
+9001;1772216517.801213;state_change;background_hits=4
+9003;1772216517.801298;state_change;background_hits=4
+9002;1772216517.8021529;state_change;background_hits=4
+9003;1772216520.346825;pull_request_received;0
+9002;1772216520.3468401;pull_request_received;0
+9004;1772216520.3477492;pull_request_received;0
+9002;1772216520.3488698;pull_request_received;0
+9001;1772216520.350691;pull_request_received;0
+9004;1772216522.802638;state_change;background_hits=5
+9000;1772216522.802639;state_change;background_hits=5
+9003;1772216522.804451;state_change;background_hits=5
+9001;1772216522.806453;state_change;background_hits=5
+9002;1772216522.80646;state_change;background_hits=5
+9001;1772216527.808609;state_change;background_hits=6
+9004;1772216527.808613;state_change;background_hits=6
+9000;1772216527.8086138;state_change;background_hits=6
+9003;1772216527.8086138;state_change;background_hits=6
+9002;1772216527.811987;state_change;background_hits=6
+9002;1772216527.862336;pull_request_received;0
+9002;1772216527.862541;pull_request_received;0
+9004;1772216527.863143;pull_request_received;0
+9003;1772216527.8637;pull_request_received;0
+9001;1772216527.865328;pull_request_received;0
+9001;1772216532.8150258;state_change;background_hits=7
+9002;1772216532.8164449;state_change;background_hits=7
+9003;1772216532.816463;state_change;background_hits=7
+9000;1772216532.816664;state_change;background_hits=7
+9004;1772216532.816721;state_change;background_hits=7
+9003;1772216535.3811462;pull_request_received;0
+9004;1772216535.3816462;pull_request_received;0
+9000;1772216535.381808;pull_request_received;0
+9001;1772216535.3825788;pull_request_received;0
+9003;1772216535.38275;pull_request_received;0
+9002;1772216536.3832262;state_change;accepted_messages=1
+9002;1772216536.383384;state_change;known_nodes=[]
+9004;1772216536.888371;state_change;accepted_messages=1
+9004;1772216536.8889441;state_change;known_nodes=[9002]
+9001;1772216537.399133;state_change;accepted_messages=1
+9003;1772216537.399162;state_change;accepted_messages=1
+9001;1772216537.399476;state_change;known_nodes=[9002]
+9003;1772216537.3996081;state_change;known_nodes=[9004]
+9003;1772216537.8180459;state_change;background_hits=8
+9001;1772216537.820991;state_change;background_hits=8
+9002;1772216537.821044;state_change;background_hits=8
+9000;1772216537.821044;state_change;background_hits=8
+9004;1772216537.821147;state_change;background_hits=8
+9002;1772216537.904386;state_change;accepted_messages=2
+9002;1772216537.9047098;state_change;known_nodes=[9003]
+9002;1772216537.908216;state_change;accepted_messages=3
+9002;1772216537.908343;state_change;known_nodes=[9003, 9004]
+9002;1772216537.908659;state_change;accepted_messages=4
+9002;1772216537.90878;state_change;known_nodes=[9003, 9004, 9001]
+9004;1772216538.411704;state_change;accepted_messages=2
+9004;1772216538.4120908;state_change;known_nodes=[9002, 9003]
+9003;1772216538.412139;state_change;accepted_messages=2
+9003;1772216538.4122639;state_change;known_nodes=[9004, 9002]
+9003;1772216538.416439;state_change;accepted_messages=3
+9003;1772216538.416554;state_change;known_nodes=[9004, 9002, 9001]
+9001;1772216538.9230661;state_change;accepted_messages=2
+9001;1772216538.923573;state_change;known_nodes=[9002, 9004]
+9000;1772216538.929054;state_change;accepted_messages=1
+9000;1772216538.9292228;state_change;known_nodes=[9002]
+9001;1772216539.440185;state_change;accepted_messages=3
+9001;1772216539.440595;state_change;known_nodes=[9002, 9004]
+9000;1772216539.442015;state_change;accepted_messages=2
+9000;1772216539.442268;state_change;known_nodes=[9002, 9004]
+9000;1772216539.9517062;state_change;accepted_messages=3
+9000;1772216539.952042;state_change;known_nodes=[9002, 9004, 9003]
+9003;1772216539.9523442;state_change;accepted_messages=4
+9003;1772216539.953065;state_change;known_nodes=[9004, 9002, 9001]
+9004;1772216540.467621;state_change;accepted_messages=3
+9004;1772216540.467992;state_change;known_nodes=[9002, 9003]
+9000;1772216540.467988;state_change;accepted_messages=4
+9000;1772216540.468708;state_change;known_nodes=[9002, 9004, 9003, 9001]
+9004;1772216540.469113;state_change;accepted_messages=4
+9004;1772216540.469457;state_change;known_nodes=[9002, 9003]
+9001;1772216540.97888;state_change;accepted_messages=4
+9001;1772216540.979263;state_change;known_nodes=[9002, 9004]
+9003;1772216540.979411;state_change;accepted_messages=5
+9002;1772216540.9798179;state_change;accepted_messages=5
+9003;1772216540.979852;state_change;known_nodes=[9004, 9002, 9001]
+9002;1772216540.980235;state_change;known_nodes=[9003, 9004, 9001]
+9003;1772216540.981154;state_change;accepted_messages=6
+9003;1772216540.981348;state_change;known_nodes=[9004, 9002, 9001]
+9003;1772216541.489411;state_change;accepted_messages=7
+9003;1772216541.4901178;state_change;known_nodes=[9004, 9002, 9001]
+9001;1772216541.490243;state_change;accepted_messages=5
+9001;1772216541.4905138;state_change;known_nodes=[9002, 9004, 9003]
+9001;1772216541.495407;state_change;accepted_messages=6
+9001;1772216541.495645;state_change;known_nodes=[9002, 9004, 9003, 9000]
+9002;1772216541.998933;state_change;accepted_messages=6
+9002;1772216541.9996312;state_change;known_nodes=[9003, 9004, 9001]
+9003;1772216542.000104;state_change;accepted_messages=8
+9003;1772216542.0021188;state_change;known_nodes=[9004, 9002, 9001]
+9003;1772216542.003628;state_change;accepted_messages=9
+9003;1772216542.003756;state_change;known_nodes=[9004, 9002, 9001, 9000]
+9004;1772216542.513464;state_change;accepted_messages=5
+9004;1772216542.5143192;state_change;known_nodes=[9002, 9003]
+9000;1772216542.5154932;state_change;accepted_messages=5
+9000;1772216542.5158982;state_change;known_nodes=[9002, 9004, 9003, 9001]
+9003;1772216542.8238132;state_change;background_hits=9
+9002;1772216542.8238132;state_change;background_hits=9
+9001;1772216542.8258948;state_change;background_hits=9
+9004;1772216542.825921;state_change;background_hits=9
+9000;1772216542.8263948;state_change;background_hits=9
+9003;1772216542.8971221;pull_request_received;0
+9002;1772216542.898705;pull_request_received;0
+9003;1772216542.8991401;pull_request_received;0
+9002;1772216542.9008262;pull_request_received;0
+9004;1772216542.902292;pull_request_received;0
+9001;1772216547.830278;state_change;background_hits=10
+9004;1772216547.8302772;state_change;background_hits=10
+9003;1772216547.8302772;state_change;background_hits=10
+9002;1772216547.8302772;state_change;background_hits=10
+9000;1772216547.832326;state_change;background_hits=10
+9004;1772216550.4162319;pull_request_received;0
+9002;1772216550.416311;pull_request_received;0
+9003;1772216550.416515;pull_request_received;0
+9003;1772216550.417384;pull_request_received;0
+9004;1772216550.4174562;pull_request_received;0
+9004;1772216552.834626;state_change;background_hits=11
+9001;1772216552.835495;state_change;background_hits=11
+9002;1772216552.835503;state_change;background_hits=11
+9000;1772216552.835519;state_change;background_hits=11
+9003;1772216552.835571;state_change;background_hits=11
