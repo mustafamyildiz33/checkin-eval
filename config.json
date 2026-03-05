@@ -4,7 +4,12 @@
     "base_port": 9000,
     "max_forwards": 5,
     "push_queue_maxsize": 5000,
-    "pull_period": 7,
+    "pull_period": 5,
     "background_period": 5,
-    "default_latency": 0.5
+    "default_latency": 0.1,
+    "heartbeat_timeout": 12,
+    "request_timeout": 3,
+    "surveying_failure_threshold": 3,
+    "destruction_probability": 0.03,
+    "destruction_check_period": 5
 }

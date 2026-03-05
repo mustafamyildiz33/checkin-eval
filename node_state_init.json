@@ -5,5 +5,9 @@
     "ALARMED": false,
     "SURVEYING": false,
     "DESTROYED": false,
-    "NORMAL": true
+    "NORMAL": true,
+    "heartbeat_counter": 0,
+    "neighbor_last_heartbeat": {},
+    "neighbor_states": {},
+    "surveying_targets": {}
 }

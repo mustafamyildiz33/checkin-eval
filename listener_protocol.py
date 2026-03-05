@@ -20,7 +20,10 @@
 # -------------------------------------------------------------------------
 
 
+from flask import jsonify
+
 import egess_api # Used for invoking commonly used EGESS API functions
+import time
 
 
 def listener_protocol(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue, msg):
@@ -36,16 +39,53 @@ def listener_protocol(config_json, node_state, state_lock, this_port, number_of_
         push_queue (queue.Queue): The queue for messages to be pushed to other node(s).
         msg (dict[str, Any]): JSON object received via POST protocol.
     """    
+
+    with state_lock:
+        if node_state["DESTROYED"]:
+            return jsonify({"error": "Node is destroyed"}), 503
     
-    state_lock.acquire()
-    if node_state["NORMAL"] == False:
-        return()
-    state_lock.release()
+
+
+    if msg.get("type") == "heartbeat":
+        sender = str(msg["from"])
+        # If the message is a heartbeat, we should update the last heartbeat time for the neighbor that sent it.
+        state_lock.acquire()
+        node_state["neighbor_last_heartbeat"][sender] = time.time()
+        state_lock.release()
+        return jsonify({"status": "ok"}), 200
+    
+    if msg.get("type") == "alarmed_notification":
+        with state_lock:
+            if not node_state["DESTROYED"] and not node_state["ALARMED"]:
+                node_state["ALARMED"] = True
+                egess_api.write_state_change_data_point(this_port, node_state, "ALARMED")
+        return jsonify({"status": "ok"}), 200
+
+    if msg.get("type") == "clear_alarmed":
+        with state_lock:
+            if node_state["ALARMED"] and not node_state["DESTROYED"]:
+                node_state["ALARMED"] = False
+                node_state["NORMAL"] = True
+                egess_api.write_state_change_data_point(this_port, node_state, "ALARMED")
+        return jsonify({"status": "ok"}), 200
+
+    if msg.get("type") == "state_request":
+        state_lock.acquire()
+        snapshot = {
+            "from": this_port,
+            "counter": node_state["heartbeat_counter"],
+            "ALARMED": node_state["ALARMED"],
+            "SURVEYING": node_state["SURVEYING"],
+            "DESTROYED": node_state["DESTROYED"],
+            "NORMAL": node_state["NORMAL"]
+        }
+        state_lock.release()
+        return jsonify({"state": snapshot}), 200    
 
     if msg["op"] == "pull": # Indicates that the message is a "pull" request
         print("PULL REQUEST RECEIVED\n") # Log receiving the request
         # And add it to the data storage with "pull_request_received" type
-        egess_api.write_data_point(this_port, "pull_request_received", str(0))
+        egess_api.write_data_point(this_port, "pull_request_received", str(msg.get("from", "unknown")))
         # Pull requests are basically requests for updates, and they are
         # to be responded immediately within the same session. This response,
         # for example, sends the state of the current node to the pull requester.

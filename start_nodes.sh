@@ -25,13 +25,12 @@ N=25
 PORT=9000
 
 # Iterate from 1 (inclusive) until N (inclusive)
-for ((i=1; i<=N; i++)); do
-    # Start each node one by one forcing the stdout and stderr streams to be unbuffered
-    # and appending both stderr and stdout to run.log
-    python3 -u node.py $PORT $N  >> run.log  2>&1 &
-    # Increment the current port number
-    PORT=$((PORT + 1))
+for row in 0 1 2 3 4; do
+    for col in 0 1 2 3 4; do
+        PORT=$((9000 + row * 10 + col))
+        python3 -u node.py $PORT $N >> run.log 2>&1 &
+        sleep 0.1
+    done
 done
-
 # List the processes currently running nodes
 ps -ef | grep node.py | grep -v grep

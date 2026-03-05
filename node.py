@@ -34,6 +34,7 @@ import push_protocol # Contains the pull protocol of the node
 import background_protocol # Contains the background protocol of the node
 import listener_protocol # Contains the listener protocol of the node
 import pull_protocol # Contains the pull protocol of the node
+import destruction_protocol # Contains the destruction protocol of the node
 
 
 def pull(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue):
@@ -112,6 +113,19 @@ def background(config_json, node_state, state_lock, this_port, number_of_nodes, 
     while True:
         time.sleep(config_json["background_period"]) # Keep invoking the background protocol with pre-determined frequency
         background_protocol.background_protocol(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue)
+
+
+def destruction(config_json, node_state, state_lock, this_port):
+    """
+    Thread function that initiates the destruction protocol of the node.
+
+    Args:
+        config_json (dict[str, Any]): JSON object with all-nodes configuration.
+        node_state (dict[str, Any]): The state of this current node.
+        state_lock (threading.Lock): The lock object for thread-safety of the state.
+        this_port (int): The port this node listens.
+    """
+    destruction_protocol.destruction_protocol(config_json, node_state, state_lock, this_port)
 
 
 def main():
@@ -338,12 +352,17 @@ def main():
     # latency matrix can dynamically change to represent this.
     node_state["latency_matrix"] = []
 
-    # Initialize the latency matrix with the default initial value
-    for i in range(number_of_nodes):
-        row = []
-        for j in range(number_of_nodes):
-            row.append(config_json["default_latency"])
-            node_state["latency_matrix"].append(row)        
+    matrix_size = 9044 - config_json["base_port"] + 1  # Always 45
+    for i in range(matrix_size):    
+        row = [config_json["default_latency"]] * matrix_size
+        node_state["latency_matrix"].append(row)
+
+
+    # Initialize neighbor_last_heartbeat so nodes aren't immediately surveyed at startup
+    now = time.time()
+    for neighbor in node_state["known_nodes"]:
+        node_state["neighbor_last_heartbeat"][str(neighbor)] = now
+
 
     # State lock for thread safety of the node_state object.
     # ATTENTION: Never read or write from/to the node_state object before acquiring the state_lock first
@@ -378,6 +397,10 @@ def main():
     # Start listener thread
     listener_thread.start()
 
+    # Create the destruction thread. The destruction thread checks if the node should be destroyed and updates the state accordingly.
+    destruction_thread = threading.Thread(target=destruction, args=(config_json, node_state, state_lock, this_port))
+    destruction_thread.start()
+
     # Create the pull thread. The pull thread contacts (polls) other nodes to get some information or updates from them.
     pull_thread = threading.Thread(target=pull, args=(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue))
     pull_thread.start() # Start the pull thread.
@@ -385,6 +408,7 @@ def main():
     # Join the threads in the opposite (LIFO) order
     pull_thread.join()
     listener_thread.join()
+    destruction_thread.join()
     background_thread.join()
     push_thread.join()
 
