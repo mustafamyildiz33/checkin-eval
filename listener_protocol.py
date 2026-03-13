@@ -56,9 +56,36 @@ def listener_protocol(config_json, node_state, state_lock, this_port, number_of_
     
     if msg.get("type") == "alarmed_notification":
         with state_lock:
-            if not node_state["DESTROYED"] and not node_state["ALARMED"]:
+            event_id = msg.get("event_id", "unknown")
+            if not node_state["DESTROYED"] and not node_state["ALARMED"] and not node_state["SURVEYING"]:
                 node_state["ALARMED"] = True
                 egess_api.write_state_change_data_point(this_port, node_state, "ALARMED")
+                # Forward alarm outward to normal neighbors
+                forward_count = msg.get("forward_count", 0) + 1
+                if forward_count < config_json["max_alarm_forwards"]:
+                    push_queue.put({
+                        "type": "alarm_wave",
+                        "from": this_port,
+                        "forward_count": forward_count,
+                        "event_id": event_id
+                    })
+        return jsonify({"status": "ok"}), 200
+    
+    if msg.get("type") == "alarm_wave":
+        with state_lock:
+            event_id = msg.get("event_id", "unknown")
+            already_seen = event_id in node_state["seen_alarm_events"]
+            if not node_state["DESTROYED"] and not already_seen:
+                node_state["seen_alarm_events"].append(event_id)
+                forward_count = msg.get("forward_count", 0) + 1
+                egess_api.write_data_point(this_port, "alarm_wave_received", "{};from={}".format(event_id, str(msg.get("from", "unknown"))))
+                if forward_count < config_json["max_alarm_forwards"]:
+                    push_queue.put({
+                        "type": "alarm_wave",
+                        "from": this_port,
+                        "forward_count": forward_count,
+                        "event_id": event_id
+                    })
         return jsonify({"status": "ok"}), 200
 
     if msg.get("type") == "clear_alarmed":
