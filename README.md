@@ -39,3 +39,10 @@ After running, the CSV-formatted data is in `data.csv` and the log of all the ou
 
 ## A note about logging messages
 All the messages to accrue `run.log` should be done with **a single argument**. In other words, the `print()` function must not use any commas to separate logged fields; use `format()` instead. Otherwise, the separate arguments of `print()` might be logged in separate spots in the log. Also, it is important to finish each string with a newline, even though `print()` adds a newline to the output. For example, if you want to log the message `foo`, you must do it like this: `print("foo\n")`.
+
+### Step VI: Load the Gif and PNG for current run
+When a run is complete, the gif and png created by visuals.py may not necessarily load or may only show the visuals of the previous run. To solve this, you must cd into the area of your file where data.csv is located. Most likely this will just be the name of project (in my case Egess Second Attempt). Afterwards, simply load the visuals.py file and they should appear.
+```
+cd "Egess Second Attempt"   # or wherever data.csv lives
+python3 visuals.py
+```
