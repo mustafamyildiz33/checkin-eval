@@ -20,9 +20,10 @@
 # sends the message from the push queue to other nodes.
 # -------------------------------------------------------------------------
 
-import copy # For copying lists' data, not references.
-import random # For randomly selecting nodes to forward the message to.
-import egess_api # For invoking commonly used functions.
+import copy
+
+import egess_api
+
 
 def push_protocol(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue, msg):
     """
@@ -37,36 +38,22 @@ def push_protocol(config_json, node_state, state_lock, this_port, number_of_node
         push_queue (queue.Queue): The queue for messages to be pushed to other node(s).
         msg (dict[str, Any]): The message (in JSON format) to be pushed.
     """
+    del number_of_nodes, push_queue
 
-    # Generate the list of ports of all nodes, which is basically [9000, 9001, 9002, ..., 9000+N].
-    all_nodes = list(range(config_json["base_port"], config_json["base_port"] + number_of_nodes, 1))
-    # To exclude the current node from all_nodes without altering all_nodes, we have to copy it first.
-    other_nodes = copy.copy(all_nodes)
-    # And then exclude the current node's port.
-    other_nodes.remove(this_port)
-    # Now let's take a random.
-    
-    # Below is commented out random node selection 
-    #node_sample = random.sample(other_nodes, 2)
-    state_lock.acquire()
-    node_sample = copy.copy(node_state["known_nodes"])
-    state_lock.release()
+    with state_lock:
+        if node_state["DESTROYED"] or egess_api.effective_crash(node_state):
+            egess_api.append_recent_msg(node_state, "drop:push local_unavailable")
+            return
+        node_sample = copy.copy(node_state["known_nodes"])
 
-    # Iterate over the randomly selected sample of nodes.
     for target_port in node_sample:
-        # Forward the message to the node from the random sample and log the event.
         egess_api.send_msg(config_json, node_state, state_lock, this_port, msg, target_port)
         print("MESSAGE FORWARDED {} {}\n".format(str(this_port), str(target_port)))
-        
-    
-        state_lock.acquire()
+
+    with state_lock:
         if not node_state["SURVEYING"] and not node_state["DESTROYED"]:
-            if not node_state["NORMAL"]:  # only log if transitioning into NORMAL
+            if not node_state["NORMAL"]:
                 node_state["NORMAL"] = True
-                state_lock.release()
                 egess_api.write_state_change_data_point(this_port, node_state, "NORMAL")
             else:
                 node_state["NORMAL"] = True
-                state_lock.release()
-        else:
-            state_lock.release()

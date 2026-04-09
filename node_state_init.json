@@ -12,5 +12,29 @@
     "surveying_targets": {},
     "seen_alarm_events": [],
     "ON_FIRE": false,
-    "fire_arrival_time": null
+    "fire_arrival_time": null,
+    "recent_msgs": [],
+    "fault_runtime": {},
+    "faults": {
+        "crash_sim": false,
+        "lie_sensor": false,
+        "flap": false,
+        "period_sec": 4
+    },
+    "msg_counters": {
+        "pull_rx": 0,
+        "push_rx": 0,
+        "pull_tx": 0,
+        "push_tx": 0,
+        "pull_rx_bytes": 0,
+        "push_rx_bytes": 0,
+        "pull_tx_bytes": 0,
+        "push_tx_bytes": 0,
+        "rx_total_bytes": 0,
+        "tx_total_bytes": 0,
+        "tx_ok": 0,
+        "tx_fail": 0,
+        "tx_timeout": 0,
+        "tx_conn_error": 0
+    }
 }

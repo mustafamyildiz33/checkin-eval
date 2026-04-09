@@ -122,7 +122,7 @@ def listener(config_json, node_state, state_lock, this_port, number_of_nodes, pu
             # Invoke the listener protocol for this message
             return listener_protocol.listener_protocol(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue, msg)
     
-    app.run(host=config_json["base_host"], port=this_port)
+    app.run(host=config_json["base_host"], port=this_port, debug=False, use_reloader=False, threaded=True)
 
 
 def background(config_json, node_state, state_lock, this_port, number_of_nodes, push_queue):
@@ -169,7 +169,7 @@ def main():
     if len(sys.argv) != 4:
         print("ERROR Two arguments expected.")
         print("USAGE: {} <port> <number_of_nodes> <destruction_mode>".format(sys.argv[0]))
-        print("Modes: random, fire, tornado")
+        print("Modes: none, random, fire, tornado")
         exit(1)
     
     config_file = "config.json" # This file has the configuration that applies to all nodes.
@@ -185,6 +185,7 @@ def main():
     with open(node_state_init_file) as file: # Real the initial state for all nodes
         node_state = json.load(file) # Convert into JSON object. ATTENTION: this object can only be used with a state lock
 
+    node_state["started_ts"] = float(time.time())
 
     grid_size = _auto_grid_size(number_of_nodes)
     node_index = this_port - config_json["base_port"]
@@ -253,6 +254,8 @@ def main():
         destruction_thread = threading.Thread(target=fire_destruction, args=(config_json, node_state, state_lock, this_port, push_queue))
     elif destruction_mode == "tornado":
         destruction_thread = threading.Thread(target=tornado_destruction, args=(config_json, node_state, state_lock, this_port, push_queue))
+    elif destruction_mode == "none":
+        destruction_thread = threading.Thread(target=lambda: None)
     else:
         destruction_thread = threading.Thread(target=destruction, args=(config_json, node_state, state_lock, this_port))
     destruction_thread.start()

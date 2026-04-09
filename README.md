@@ -46,3 +46,26 @@ When a run is complete, the gif and png created by visuals.py may not necessaril
 cd "Egess Second Attempt"   # or wherever data.csv lives
 python3 visuals.py
 ```
+
+## Paper evaluation
+
+This repo now also includes a phase-based paper evaluation runner in `paper_eval_runner.py`
+with specs under `paper_eval/`.
+
+Quick same-machine smoke test:
+
+```bash
+python3 paper_eval_runner.py --spec paper_eval/phase1/phase1_baseline_60s.json --max-runs 1 --node-counts 49 --duration-sec 10
+```
+
+Phase files:
+
+- `paper_eval/phase1/phase1_baseline_60s.json`
+- `paper_eval/phase1/phase1_baseline_120s.json`
+- `paper_eval/phase2/phase2_hazard_60s.json`
+- `paper_eval/phase2/phase2_hazard_120s.json`
+- `paper_eval/phase3/phase3_stress_60s.json`
+- `paper_eval/phase3/phase3_stress_120s.json`
+
+The phase runner writes run-level reports into `runs/<timestamp>/` and suite-level
+reports into `paper_reports/<suite_id>_<timestamp>/`.
