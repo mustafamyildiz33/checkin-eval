@@ -294,8 +294,8 @@ def listener_protocol(config_json, node_state, state_lock, this_port, number_of_
         with state_lock:
             if node_state["ALARMED"] and not node_state["DESTROYED"]:
                 node_state["ALARMED"] = False
-                node_state["NORMAL"] = True
-                egess_api.write_state_change_data_point(this_port, node_state, "ALARMED")
+                node_state["NORMAL"] = not node_state["SURVEYING"] and not node_state.get("ON_FIRE", False)
+                egess_api.write_state_change_data_point(this_port, node_state, _protocol_state_label(node_state))
         return jsonify({"status": "ok"}), 200
 
     if msg.get("type") == "fire_spread":

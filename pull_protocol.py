@@ -57,7 +57,7 @@ def _mark_neighbor_unavailable(neighbor_port, config_json, node_state, state_loc
 
     if not node_state["surveying_targets"]:
         node_state["SURVEYING"] = False
-        node_state["NORMAL"] = True
+        node_state["NORMAL"] = not node_state["ALARMED"] and not node_state["ON_FIRE"] and not node_state["DESTROYED"]
         for _neighbor in list(node_state["known_nodes"]):
             push_queue.put({"type": "clear_alarmed", "from": this_port})
 
@@ -93,7 +93,7 @@ def request_state_from(neighbor_port, config_json, node_state, state_lock, this_
             node_state["surveying_targets"].pop(str(neighbor_port), None)
             if not node_state["surveying_targets"]:
                 node_state["SURVEYING"] = False
-                node_state["NORMAL"] = True
+                node_state["NORMAL"] = not node_state["ALARMED"] and not node_state["ON_FIRE"] and not node_state["DESTROYED"]
         return
 
     with state_lock:

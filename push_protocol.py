@@ -51,9 +51,17 @@ def push_protocol(config_json, node_state, state_lock, this_port, number_of_node
         print("MESSAGE FORWARDED {} {}\n".format(str(this_port), str(target_port)))
 
     with state_lock:
-        if not node_state["SURVEYING"] and not node_state["DESTROYED"]:
+        should_be_normal = (
+            not node_state["SURVEYING"]
+            and not node_state["DESTROYED"]
+            and not node_state["ALARMED"]
+            and not node_state.get("ON_FIRE", False)
+        )
+        if should_be_normal:
             if not node_state["NORMAL"]:
                 node_state["NORMAL"] = True
                 egess_api.write_state_change_data_point(this_port, node_state, "NORMAL")
             else:
                 node_state["NORMAL"] = True
+        else:
+            node_state["NORMAL"] = False
