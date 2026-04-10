@@ -69,6 +69,14 @@ def _add_recent_msg(node_state, message):
         del events[:-60]
 
 
+def _is_observer_pull(msg):
+    metadata = msg.get("metadata", {})
+    if not isinstance(metadata, dict):
+        metadata = {}
+    origin = str(metadata.get("origin", msg.get("from", ""))).strip().lower()
+    return origin in ("bootstrap", "paper_report", "paper_history", "paper_eval", "viz")
+
+
 def _protocol_state_label(node_state):
     if node_state.get("DESTROYED", False):
         return "DESTROYED"
@@ -82,6 +90,8 @@ def _protocol_state_label(node_state):
 
 
 def _record_inbound_msg(node_state, msg):
+    if str(msg.get("op", "")).strip().lower() == "pull" and _is_observer_pull(msg):
+        return
     msg_size_bytes = egess_api.serialized_size_bytes(msg)
     counters, _ = _touch_msg_telemetry(node_state)
     msg_kind = str(msg.get("op", ""))
