@@ -5076,6 +5076,7 @@ def _tornado_actions(spec, base_port, number_of_nodes, seed):
     baseline_gap = max(2.0, duration_sec * 0.10)
     sweep_window = max(4.0, duration_sec * 0.60)
     step_gap = sweep_window / max(1, len(batches) - 1) if len(batches) > 1 else sweep_window
+    destroyed_ports = sorted({port for batch in batches for port in batch})
     for idx, ports in enumerate(batches):
         actions.append(
             {
@@ -5085,6 +5086,25 @@ def _tornado_actions(spec, base_port, number_of_nodes, seed):
                 "label": "tornado_step_{}".format(idx + 1),
             }
         )
+
+    recovery_at = min(duration_sec - 1.0, max(baseline_gap + sweep_window + 1.0, duration_sec * 0.78))
+    reset_at = min(duration_sec - 0.2, max(recovery_at + 1.0, duration_sec * 0.93))
+    actions.append(
+        {
+            "at_sec": round(recovery_at, 3),
+            "kind": "recover_batch",
+            "ports": destroyed_ports,
+            "label": "tornado_recovery",
+        }
+    )
+    actions.append(
+        {
+            "at_sec": round(reset_at, 3),
+            "kind": "reset_batch",
+            "ports": destroyed_ports,
+            "label": "tornado_reset",
+        }
+    )
     return actions
 
 
