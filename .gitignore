@@ -6,6 +6,10 @@ __pycache__/
 campaign_reports/
 paper_reports/
 runs/
+campaign_reports/
+comparison_reports/
+statistics_reports/
+.mplcache/
 
 # C extensions
 *.so

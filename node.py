@@ -24,6 +24,7 @@
 from logging import root
 import sys  # To access command line arguments
 import json # To encode and decode JSON format
+import os
 from flask import Flask, request, jsonify # For sending and receiving messages
 import threading # For running push, background, listener, and pull threads
 import queue # For implementing the push queue
@@ -181,6 +182,7 @@ def main():
 
     with open(config_file) as file: # Read all-nodes configuration file
         config_json = json.load(file) # Convert into JSON object. ATTENTION: this object is not for writing (for thread safety)
+    config_json["base_port"] = int(os.environ.get("EGESS_BASE_PORT", config_json.get("base_port", 9000)))
 
     with open(node_state_init_file) as file: # Real the initial state for all nodes
         node_state = json.load(file) # Convert into JSON object. ATTENTION: this object can only be used with a state lock
