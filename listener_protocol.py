@@ -231,14 +231,19 @@ def listener_protocol(config_json, node_state, state_lock, this_port, number_of_
             _add_recent_msg(node_state, "control:state={}".format(applied))
         return _control_receipt("state_updated", protocol_state=applied)
 
+    drop_for_fault = False
     with state_lock:
         if node_state.get("DESTROYED", False):
             return jsonify({"error": "Node is destroyed"}), 503
         if egess_api.effective_crash(node_state):
             _add_recent_msg(node_state, "drop:{} (crash_sim/flap)".format(op or msg.get("type", "message")))
-            time.sleep(min(1.1, float(config_json.get("request_timeout", 1.0))))
-            return jsonify({"error": "Node unavailable"}), 503
-        _record_inbound_msg(node_state, msg)
+            drop_for_fault = True
+        else:
+            _record_inbound_msg(node_state, msg)
+
+    if drop_for_fault:
+        time.sleep(min(1.1, float(config_json.get("request_timeout", 1.0))))
+        return jsonify({"error": "Node unavailable"}), 503
 
     if msg.get("type") == "heartbeat":
         sender = str(msg.get("from"))
