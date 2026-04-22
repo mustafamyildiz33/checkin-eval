@@ -67,8 +67,77 @@ For graphs plus a small proof trail, use `--proof-lite`; it keeps capped
 `32 KB` node logs and compact evidence snippets without storing full raw node
 state.
 
-After each 6-batch chunk, check that the rows, statuses, figures, and Google
-Sheets CSVs are ready before starting the next chunk:
+## Ghost-Only Paper Rerun
+
+For the paper fairness rerun, run only the ghost/stress phase
+(`phase4` / `ghost_outage_noise`) at node counts `49,64,81`.
+
+This ghost/stress setup is now aligned much more closely with the EGESS
+comparison path than it was before. Still, the two protocols are different
+implementations, so do not describe them as fully identical. The fair wording
+is that the rerun is much more similar and much fairer, without claiming a
+perfectly identical protocol behavior on both sides.
+
+Use `--proof-lite` for this collection. It keeps the final suite dashboard,
+figure exports, Google Sheets CSVs, and bounded node logs without filling the
+disk the way full logs or full raw evidence would.
+
+Preview the storage estimate before the real run:
+
+```bash
+cd /Users/mustafa/egess/external/checkin-egess-eval
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 30 --nodes 49,64,81 --proof-lite --dry-run
+```
+
+Before the full rerun, do a real 1-batch pre-test:
+
+```bash
+cd /Users/mustafa/egess/external/checkin-egess-eval
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 1 --nodes 49,64,81 --proof-lite
+```
+
+If that 1-batch pre-test finishes and writes the expected `paper_reports/`
+folder, then run the full 30-batch collection.
+
+Run the full 30-batch ghost-only collection:
+
+```bash
+cd /Users/mustafa/egess/external/checkin-egess-eval
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 30 --nodes 49,64,81 --proof-lite
+```
+
+If you want the safer chunked workflow, use:
+
+```bash
+cd /Users/mustafa/egess/external/checkin-egess-eval
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 6 --batch-start 1  --nodes 49,64,81 --proof-lite
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 6 --batch-start 7  --nodes 49,64,81 --proof-lite
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 6 --batch-start 13 --nodes 49,64,81 --proof-lite
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 6 --batch-start 19 --nodes 49,64,81 --proof-lite
+./run_paper_eval.sh --base-port 9200 --mode phase4 --duration 60 --batches 6 --batch-start 25 --nodes 49,64,81 --proof-lite
+```
+
+To package the chunked ghost-only results the same way as the larger paper
+runs, merge them from the EGESS repo:
+
+```bash
+cd /Users/mustafa/egess
+./.venv/bin/python merge_paper_reports.py --root checkin=/Users/mustafa/egess/external/checkin-egess-eval/paper_reports --base-port 9200 --nodes 49,64,81 --duration-sec 60 --phase phase4 --challenge ghost_outage_noise --expected-batches 30
+```
+
+That merged folder is written under `merged_paper_reports/` and includes the
+same `Download Export Bundle` button and `*_portable_export.zip` output as the
+other merged paper batches.
+
+If you chunk the ghost-only rerun, checkpoint a chunk with:
+
+```bash
+cd /Users/mustafa/egess
+./.venv/bin/python check_chunk_status.py --root /Users/mustafa/egess/external/checkin-egess-eval --base-port 9200 --batch-start 1 --batches 6 --nodes 49,64,81
+```
+
+For the older all-scenarios `49,64` matrix, check that the rows, statuses,
+figures, and Google Sheets CSVs are ready before starting the next chunk:
 
 ```bash
 cd /Users/mustafa/egess

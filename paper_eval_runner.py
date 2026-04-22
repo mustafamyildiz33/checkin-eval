@@ -7,6 +7,7 @@ reports for the whole suite and for each individual run.
 """
 
 import argparse
+import concurrent.futures
 import csv
 import json
 import math
@@ -33,19 +34,20 @@ ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]")
 FULL_EVIDENCE = str(os.environ.get("EGESS_FULL_EVIDENCE", "0")).strip().lower() in ("1", "true", "yes", "on")
 EVIDENCE_RECENT_MSG_LIMIT = max(0, int(os.environ.get("EGESS_EVIDENCE_RECENT_MSG_LIMIT", "8")))
 EVIDENCE_RECENT_ALERT_LIMIT = max(0, int(os.environ.get("EGESS_EVIDENCE_RECENT_ALERT_LIMIT", "8")))
-_HTTP_SESSION = None
+SAMPLE_WORKERS = max(1, int(os.environ.get("EGESS_SAMPLE_WORKERS", "16")))
+_HTTP_LOCAL = threading.local()
 
 
 def _http_session():
-    global _HTTP_SESSION
-    if _HTTP_SESSION is None:
+    session = getattr(_HTTP_LOCAL, "session", None)
+    if session is None:
         session = requests.Session()
         session.trust_env = False
         adapter = HTTPAdapter(pool_connections=128, pool_maxsize=128, max_retries=0, pool_block=False)
         session.mount("http://", adapter)
         session.mount("https://", adapter)
-        _HTTP_SESSION = session
-    return _HTTP_SESSION
+        _HTTP_LOCAL.session = session
+    return session
 ACTIVE_PROCESSES = []
 ACTIVE_LOG_THREADS = []
 
@@ -4907,18 +4909,34 @@ def _start_nodes(number_of_nodes, base_port=9000):
     return run_dir
 
 
-def _wait_until_ready(base_port, number_of_nodes, timeout_sec=35.0):
+def _ready_port(port):
+    try:
+        res = _pull_state(port, origin="bootstrap", timeout=1.2)
+        return isinstance(res, dict) and res.get("op") == "receipt"
+    except Exception:
+        return False
+
+
+def _ready_ports(base_port, number_of_nodes):
+    ports = list(range(int(base_port), int(base_port) + int(number_of_nodes)))
+    worker_count = min(len(ports), SAMPLE_WORKERS)
+    if worker_count <= 1:
+        return {int(port) for port in ports if _ready_port(port)}
+    ready = set()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_count) as executor:
+        futures = {executor.submit(_ready_port, port): int(port) for port in ports}
+        for future in concurrent.futures.as_completed(futures):
+            if future.result():
+                ready.add(int(futures[future]))
+    return ready
+
+
+def _wait_until_ready(base_port, number_of_nodes, timeout_sec=90.0):
     deadline = time.monotonic() + float(timeout_sec)
+    seen_ready = set()
     while time.monotonic() < deadline:
-        ready = 0
-        for port in range(int(base_port), int(base_port) + int(number_of_nodes)):
-            try:
-                res = _pull_state(port, origin="bootstrap", timeout=0.8)
-                if isinstance(res, dict) and res.get("op") == "receipt":
-                    ready += 1
-            except Exception:
-                pass
-        if ready >= int(number_of_nodes):
+        seen_ready.update(_ready_ports(base_port, number_of_nodes))
+        if len(seen_ready) >= int(number_of_nodes):
             return True
         time.sleep(1.0)
     return False
@@ -5116,6 +5134,9 @@ def _stress_actions(spec, base_port, number_of_nodes, seed):
     neighbors = _neighbors_for_port(base_port, number_of_nodes, target)
     lie_port = int(neighbors[0]) if len(neighbors) > 0 else int(target)
     flap_port = int(neighbors[1]) if len(neighbors) > 1 else int(lie_port)
+    flap_off_at = max(1.0, duration_sec * 0.68)
+    recovering_at = max(1.0, duration_sec * 0.72)
+    reset_at = max(1.0, duration_sec * 0.78)
     actions = [
         {
             "at_sec": round(duration_sec * 0.15, 3),
@@ -5163,7 +5184,7 @@ def _stress_actions(spec, base_port, number_of_nodes, seed):
             "label": "flap_on",
         },
         {
-            "at_sec": round(duration_sec * 0.82, 3),
+            "at_sec": round(flap_off_at, 3),
             "kind": "fault_toggle",
             "port": int(flap_port),
             "fault": "flap",
@@ -5172,14 +5193,14 @@ def _stress_actions(spec, base_port, number_of_nodes, seed):
             "label": "flap_off",
         },
         {
-            "at_sec": round(duration_sec * 0.88, 3),
+            "at_sec": round(recovering_at, 3),
             "kind": "state_batch",
             "ports": [int(target), int(lie_port), int(flap_port)],
             "sensor_state": "RECOVERING",
             "label": "stress_recovering",
         },
         {
-            "at_sec": round(duration_sec * 0.96, 3),
+            "at_sec": round(reset_at, 3),
             "kind": "reset_batch",
             "ports": [int(target), int(lie_port), int(flap_port)],
             "label": "stress_reset",
@@ -5209,7 +5230,9 @@ def _watch_ports(spec, base_port, number_of_nodes, seed):
         batches = _tornado_sweep_batches(base_port, number_of_nodes, seed, spec.get("scenario", {}).get("tornado_width", 2))
         local_watch = int(batches[0][0]) if len(batches) > 0 and len(batches[0]) > 0 else _center_port(base_port, number_of_nodes)
     elif kind == "ghost_outage_noise":
-        local_watch = _center_port(base_port, number_of_nodes)
+        target = _center_port(base_port, number_of_nodes)
+        neighbors = _neighbors_for_port(base_port, number_of_nodes, target)
+        local_watch = int(neighbors[2]) if len(neighbors) > 2 else (int(neighbors[0]) if len(neighbors) > 0 else int(target))
     else:
         local_watch = _center_port(base_port, number_of_nodes)
 
